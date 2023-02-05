@@ -13,7 +13,24 @@
     <div class="main">
       <div class="left">
         <section class="controlPanel">
-          <input type='text' id='name' value='-'/>
+          <input type="text" id="name" value="-" />
+          <span>
+            <input
+              type="range"
+              id="slider"
+              value="256"
+              min="2"
+              max="1024"
+              step="2"
+            />
+            <span id="sliderValue">256</span>
+          </span>
+          <span>
+            <label>
+              <input type="checkbox" id="zeroAtCenter" />
+              Zero at center
+            </label>
+          </span>
         </section>
         <section class="canvasContainer">
           <canvas width="1" height="1" id="canvas"></canvas>
@@ -23,11 +40,14 @@
         </article>
       </div>
       <aside class="sketchesContainer">
-        <ul id='sketches'></ul>
-        <button id='new'>+ new</button>
+        <ul id="sketches"></ul>
+        <button id="new">+ new</button>
       </aside>
     </div>
-    <footer><div id='errorText'></div><div class='copyright'>&copy; @Benjie 2023</div></footer>
+    <footer>
+      <div id="errorText"></div>
+      <div class="copyright">&copy; @Benjie 2023</div>
+    </footer>
     <script src="script.js"></script>
   </body>
 </html>

@@ -6,6 +6,9 @@ const canvasEl = document.getElementById("canvas");
 const codeEl = document.getElementById("code");
 const nameEl = document.getElementById("name");
 const errorTextEl = document.getElementById("errorText");
+const sliderEl = document.getElementById("slider");
+const sliderValueEl = document.getElementById("sliderValue");
+const zeroAtCenterEl = document.getElementById("zeroAtCenter");
 const lis = [];
 
 let sketches;
@@ -125,12 +128,13 @@ function loadSketch(sketchId) {
   if (currentSketch) {
     currentSketchIndex = sketchId;
     lis[currentSketchIndex].className = "active";
-    canvasEl.width = currentSketch.size;
-    canvasEl.height = currentSketch.size;
-    nameEl.value = currentSketch.name;
     nameEl.disabled = false;
     codeEl.value = currentSketch.code;
     codeEl.disabled = false;
+    sliderEl.disabled = false;
+    sliderEl.value = currentSketch.value;
+    zeroAtCenterEl.checked = currentSketch.zeroAtCenter;
+    refresh();
     parseCode();
   } else {
     currentSketchIndex = null;
@@ -174,13 +178,47 @@ document.getElementById("new").addEventListener("click", () => {
   loadSketch(index);
 });
 
+function refresh() {
+  lis[currentSketchIndex].innerText = currentSketch.name;
+  sliderValueEl.innerText = currentSketch.size;
+  canvasEl.width = currentSketch.size;
+  canvasEl.height = currentSketch.size;
+  nameEl.value = currentSketch.name;
+  parseCode();
+  draw();
+}
+
 function nameChange() {
   const newName = nameEl.value;
   if (newName && currentSketch) {
     currentSketch.name = newName;
-    lis[currentSketchIndex].innerText = newName;
+    refresh();
     debouncedSave();
   }
 }
 nameEl.addEventListener("change", nameChange);
 nameEl.addEventListener("keyup", nameChange);
+
+function sliderChange() {
+  const value = Math.floor(sliderEl.value / 2) * 2;
+  if (value && currentSketch) {
+    currentSketch.size = currentSketch.zeroAtCenter ? value + 1 : value;
+    refresh();
+    debouncedSave();
+  }
+}
+sliderEl.addEventListener("change", sliderChange);
+sliderEl.addEventListener("input", sliderChange);
+
+function zeroChange() {
+  const value = zeroAtCenterEl.checked;
+  if (currentSketch) {
+    currentSketch.zeroAtCenter = value;
+    currentSketch.size =
+      Math.floor(currentSketch.size / 2) * 2 + (value ? 1 : 0);
+    refresh();
+    debouncedSave();
+  }
+}
+zeroAtCenterEl.addEventListener("change", zeroChange);
+zeroAtCenterEl.addEventListener("click", zeroChange);
