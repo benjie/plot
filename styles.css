@@ -26,7 +26,12 @@ footer {
   padding: 1rem;
 }
 footer {
-  text-align: right;
+  display: flex;
+}
+#errorText {
+  color: red;
+  font-weight: bold;
+  flex: 1 0 10rem;
 }
 
 .main {
@@ -56,8 +61,6 @@ footer {
   flex: 1 0 0;
 }
 #canvas {
-  height: 100%;
-  width: auto;
 }
 #code {
   width: 100%;
@@ -65,4 +68,7 @@ footer {
 }
 .codeContainer {
   height: 10rem;
+}
+.copyright {
+  flex-grow: 0;
 }
