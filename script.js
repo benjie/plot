@@ -7,28 +7,36 @@ const codeEl = document.getElementById("code");
 const nameEl = document.getElementById("name");
 const errorTextEl = document.getElementById("errorText");
 
-const sketches = [
-  {
-    name: "Line",
-    code: `\
+let sketches;
+try {
+  sketches = JSON.parse(localStorage.getItem("sketches"));
+} catch (e) {
+  console.error(e);
+}
+if (!sketches || sketches.length === 0) {
+  sketches = [
+    {
+      name: "Line",
+      code: `\
 return x === y;
 `,
-    size: 256,
-  },
-  {
-    name: "Circle",
-    code: `\
+      size: 256,
+    },
+    {
+      name: "Circle",
+      code: `\
 const r = w;
 return abs(x ** 2 + y ** 2 - r ** 2) < r;
 `,
-    size: 257,
-    zeroAtCenter: true,
-  },
-];
+      size: 257,
+      zeroAtCenter: true,
+    },
+  ];
+}
 
 for (let i = 0; i < sketches.length; i++) {
-  const li = document.createElement("li");
   const sketch = sketches[i];
+  const li = document.createElement("li");
   li.innerText = sketch.name;
   li.onclick = () => loadSketch(i);
   sketchesEl.appendChild(li);
@@ -39,9 +47,10 @@ let currentSketch = null;
 let fn = () => false;
 
 function save() {
-  if (currentSketchIndex != null) {
-    // TODO: save
+  if (currentSketch) {
+    currentSketch.code = codeEl.value;
   }
+  localStorage.setItem("sketches", JSON.stringify(sketches));
 }
 
 function parseCode() {
@@ -125,11 +134,32 @@ function loadSketch(sketchId) {
 
 loadSketch(0);
 
+let saveTimer;
+const debouncedSave = () => {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    save();
+  }, 1000);
+};
+
 codeEl.addEventListener("change", () => {
   parseCode();
   draw();
+  debouncedSave();
 });
 codeEl.addEventListener("keyup", () => {
   parseCode();
   draw();
+  debouncedSave();
+});
+document.getElementById("new").addEventListener("click", () => {
+  const newSketch = { ...currentSketch };
+  newSketch.name = newSketch.name + " (copy)";
+  const index = sketches.push(newSketch) - 1;
+  const li = document.createElement("li");
+  li.innerText = newSketch.name;
+  li.onclick = () => loadSketch(index);
+  sketchesEl.appendChild(li);
+  loadSketch(index);
 });
