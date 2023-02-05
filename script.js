@@ -6,6 +6,7 @@ const canvasEl = document.getElementById("canvas");
 const codeEl = document.getElementById("code");
 const nameEl = document.getElementById("name");
 const errorTextEl = document.getElementById("errorText");
+const lis = [];
 
 let sketches;
 try {
@@ -40,6 +41,7 @@ for (let i = 0; i < sketches.length; i++) {
   li.innerText = sketch.name;
   li.onclick = () => loadSketch(i);
   sketchesEl.appendChild(li);
+  lis.push(li);
 }
 
 let currentSketchIndex = null;
@@ -113,9 +115,16 @@ function draw() {
 
 function loadSketch(sketchId) {
   save();
+  if (currentSketchIndex >= 0) {
+    const currentLi = lis[currentSketchIndex];
+    if (currentLi) {
+      currentLi.className = "";
+    }
+  }
   currentSketch = sketches[sketchId];
   if (currentSketch) {
     currentSketchIndex = sketchId;
+    lis[currentSketchIndex].className = "active";
     canvasEl.width = currentSketch.size;
     canvasEl.height = currentSketch.size;
     nameEl.innerText = currentSketch.name;
@@ -161,5 +170,6 @@ document.getElementById("new").addEventListener("click", () => {
   li.innerText = newSketch.name;
   li.onclick = () => loadSketch(index);
   sketchesEl.appendChild(li);
+  lis.push(li);
   loadSketch(index);
 });
