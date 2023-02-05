@@ -127,13 +127,15 @@ function loadSketch(sketchId) {
     lis[currentSketchIndex].className = "active";
     canvasEl.width = currentSketch.size;
     canvasEl.height = currentSketch.size;
-    nameEl.innerText = currentSketch.name;
+    nameEl.value = currentSketch.name;
+    nameEl.disabled = false;
     codeEl.value = currentSketch.code;
     codeEl.disabled = false;
     parseCode();
   } else {
     currentSketchIndex = null;
-    nameEl.innerHTML = "&mdash;";
+    nameEl.value = "-";
+    nameEl.disabled = true;
     codeEl.value = "";
     codeEl.disabled = true;
     fn = () => false;
@@ -152,16 +154,14 @@ const debouncedSave = () => {
   }, 1000);
 };
 
-codeEl.addEventListener("change", () => {
+function codeChange() {
   parseCode();
   draw();
   debouncedSave();
-});
-codeEl.addEventListener("keyup", () => {
-  parseCode();
-  draw();
-  debouncedSave();
-});
+}
+codeEl.addEventListener("change", codeChange);
+codeEl.addEventListener("keyup", codeChange);
+
 document.getElementById("new").addEventListener("click", () => {
   const newSketch = { ...currentSketch };
   newSketch.name = newSketch.name + " (copy)";
@@ -173,3 +173,14 @@ document.getElementById("new").addEventListener("click", () => {
   lis.push(li);
   loadSketch(index);
 });
+
+function nameChange() {
+  const newName = nameEl.value;
+  if (newName && currentSketch) {
+    currentSketch.name = newName;
+    lis[currentSketchIndex].innerText = newName;
+    debouncedSave();
+  }
+}
+nameEl.addEventListener("change", nameChange);
+nameEl.addEventListener("keyup", nameChange);
