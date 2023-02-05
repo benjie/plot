@@ -1,0 +1,51 @@
+:root {
+  --bg: #555;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  font-family: sans-serif;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+header {
+  font-size: 2rem;
+  font-variant: small-caps;
+  font-weight: bold;
+}
+header,
+footer {
+  background-color: #bbb;
+  color: #111;
+  padding: 1rem;
+}
+footer {
+  text-align: right;
+}
+
+.main {
+  flex: 1 0 0;
+  display: flex;
+}
+.controlPanel {
+  background-color: #ddd;
+  height: 3rem;
+}
+.sketches {
+  flex: 0 1 10rem;
+  background-color: #ccc;
+}
+.left {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+}
+.canvasContainer {
+  background-color: #eee;
+  flex: 1 0 0;
+}
