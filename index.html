@@ -12,12 +12,19 @@
     <header>Benjie's Plot</header>
     <div class="main">
       <div class="left">
-        <section class="controlPanel"></section>
-        <article class="canvasContainer">
-          <canvas id="canvas"> </canvas>
+        <section class="controlPanel">
+          <div id='name'>&mdash;</div>
+        </section>
+        <section class="canvasContainer">
+          <canvas id="canvas"></canvas>
+        </section>
+        <article class="codeContainer">
+          <textarea id="code"></textarea>
         </article>
       </div>
-      <aside class="sketches"></aside>
+      <aside class="sketchesContainer">
+        <ul id='sketches'></ul>
+      </aside>
     </div>
     <footer>&copy; @Benjie 2023</footer>
     <script src="script.js"></script>
