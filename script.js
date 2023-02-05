@@ -35,6 +35,22 @@ return abs(x ** 2 + y ** 2 - r ** 2) < r;
       size: 257,
       zeroAtCenter: true,
     },
+    {
+      name: "Gallifrey",
+      code: `\
+function circle(r, a, b, s = 1) {
+  return abs((x - a) ** 2 + (y - b) ** 2 - r ** 2) < r * s;
+}
+function inCircle(r, a, b) {
+  return ((x - a) ** 2 + (y - b) ** 2 - r ** 2) < 0;
+}
+const b = w - 4;
+return !inCircle(0.19 * b, 0.56 * b, 0.56 * b, 3) && (circle(0.6 * b, 0, 0, 2) || circle(0.78 * b, 0, 0, 2) || circle(b, 0, 0, 6) || circle(0.19 * b, 0.56 * b, 0.56 * b, 8));
+return abs(x ** 2 + y ** 2 - r ** 2) < r;
+`,
+      size: 257,
+      zeroAtCenter: true,
+    },
   ];
 }
 
