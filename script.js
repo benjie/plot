@@ -92,10 +92,11 @@ let currentSketch = null;
 let fn = () => false;
 
 function save() {
-  if (currentSketchBuiltin) {
-    return;
+  if (currentSketchIndex != null && currentSketchBuiltin != null) {
+    localStorage.setItem("builtin", currentSketchBuiltin ? "t" : "f");
+    localStorage.setItem("index", String(currentSketchIndex));
   }
-  if (currentSketch) {
+  if (currentSketch && !currentSketchBuiltin) {
     currentSketch.code = codeEl.value;
   }
   localStorage.setItem("sketches", JSON.stringify(sketches));
@@ -218,6 +219,7 @@ function loadSketch(sketchId, builtin) {
     sliderEl.value = currentSketch.size;
     zeroAtCenterEl.checked = currentSketch.zeroAtCenter;
     animateEl.checked = currentSketch.animate;
+    save();
     refresh();
     parseCode();
   } else {
@@ -232,7 +234,15 @@ function loadSketch(sketchId, builtin) {
   draw();
 }
 
-loadSketch(0);
+{
+  const idx = localStorage.getItem("index");
+  const builtin = localStorage.getItem("builtin");
+  if (idx != null && builtin != null) {
+    loadSketch(parseInt(idx, 10), builtin === "t");
+  } else {
+    loadSketch(0, true);
+  }
+}
 
 let saveTimer;
 const debouncedSave = () => {
@@ -263,7 +273,7 @@ document.getElementById("new").addEventListener("click", () => {
   li.innerText = newSketch.name;
   li.onclick = () => loadSketch(index);
   sketchesEl.appendChild(li);
-  lis.push(li);
+  userLis.push(li);
   loadSketch(index);
 });
 
