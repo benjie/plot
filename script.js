@@ -100,6 +100,7 @@ ${code}
 
 let t = 0;
 let nextFrame = null;
+const ctx = canvasEl.getContext("2d");
 function draw() {
   if (!currentSketch) {
     return;
@@ -107,9 +108,7 @@ function draw() {
   errorTextEl.innerText = "";
   const { size, zeroAtCenter } = currentSketch;
   const offset = zeroAtCenter ? -Math.floor(size / 2) : 0;
-
-  const ctx = canvasEl.getContext("2d");
-  const imageData = ctx.createImageData(size, size);
+  let hasErrors = false;
 
   outerloop: for (let Y = 0; Y < size; Y++) {
     const y = size - Y - 1 + offset;
@@ -119,10 +118,12 @@ function draw() {
       imageData.data[pos + 3] = 255;
       try {
         const val = fn(x, y, t);
-        imageData.data[pos + 0] = val ? 0 : 255;
-        imageData.data[pos + 1] = val ? 0 : 255;
-        imageData.data[pos + 2] = val ? 0 : 255;
+        const p = val ? 0 : 255;
+        imageData.data[pos + 0] = p;
+        imageData.data[pos + 1] = p;
+        imageData.data[pos + 2] = p;
       } catch (e) {
+        hasErrors = true;
         imageData.data[pos + 0] = 255;
         imageData.data[pos + 1] = 0;
         imageData.data[pos + 2] = 0;
@@ -133,17 +134,34 @@ function draw() {
     }
   }
   ctx.putImageData(imageData, 0, 0);
-  if (currentSketch.animate) {
-    nextFrame = requestAnimationFrame(() => {
+  if (currentSketch.animate && !hasErrors) {
+    const size4 = size * 4;
+    cancelAnimationFrame(nextFrame);
+    const fastDraw = () => {
+      nextFrame = requestAnimationFrame(fastDraw);
       t++;
-      draw();
-    });
+      outerloop: for (let Y = 0; Y < size; Y++) {
+        const y = size - Y - 1 + offset;
+        for (let X = 0; X < size; X++) {
+          const x = X + offset;
+          const pos = Y * size4 + X * 4;
+          //imageData.data[pos + 3] = 255;
+          const val = fn(x, y, t);
+          const p = val ? 0 : 255;
+          imageData.data[pos + 0] = p;
+          imageData.data[pos + 1] = p;
+          imageData.data[pos + 2] = p;
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+    };
+    nextFrame = requestAnimationFrame(fastDraw);
   }
 }
 
+let imageData;
 function loadSketch(sketchId) {
   save();
-  cancelAnimationFrame(nextFrame);
   if (currentSketchIndex >= 0) {
     const currentLi = lis[currentSketchIndex];
     if (currentLi) {
@@ -171,7 +189,6 @@ function loadSketch(sketchId) {
     codeEl.disabled = true;
     fn = () => false;
   }
-  t = 0;
   draw();
 }
 
@@ -207,11 +224,14 @@ document.getElementById("new").addEventListener("click", () => {
 });
 
 function refresh() {
+  cancelAnimationFrame(nextFrame);
   lis[currentSketchIndex].innerText = currentSketch.name;
   sliderValueEl.innerText = currentSketch.size;
   canvasEl.width = currentSketch.size;
   canvasEl.height = currentSketch.size;
   nameEl.value = currentSketch.name;
+  imageData = ctx.createImageData(currentSketch.size, currentSketch.size);
+  t = 0;
   parseCode();
   draw();
 }
