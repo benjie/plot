@@ -1,6 +1,7 @@
 //setTimeout(() => window.location.reload(), 2000);
 
 const sketchesEl = document.getElementById("sketches");
+const builtinSketchesEl = document.getElementById("builtinSketches");
 const customSketchesEl = document.getElementById("customSketches");
 const canvasEl = document.getElementById("canvas");
 const codeEl = document.getElementById("code");
@@ -10,35 +11,29 @@ const sliderEl = document.getElementById("slider");
 const sliderValueEl = document.getElementById("sliderValue");
 const zeroAtCenterEl = document.getElementById("zeroAtCenter");
 const animateEl = document.getElementById("animate");
-const lis = [];
+const builtinLis = [];
+const userLis = [];
 
-let sketches;
-try {
-  sketches = JSON.parse(localStorage.getItem("sketches"));
-} catch (e) {
-  console.error(e);
-}
-if (!sketches || sketches.length === 0) {
-  sketches = [
-    {
-      name: "Line",
-      code: `\
+const BUILTIN_SKETCHES = [
+  {
+    name: "Line",
+    code: `\
 return x === y;
 `,
-      size: 256,
-    },
-    {
-      name: "Circle",
-      code: `\
+    size: 256,
+  },
+  {
+    name: "Circle",
+    code: `\
 const r = w;
 return abs(x ** 2 + y ** 2 - r ** 2) < r;
 `,
-      size: 257,
-      zeroAtCenter: true,
-    },
-    {
-      name: "Gallifrey",
-      code: `\
+    size: 257,
+    zeroAtCenter: true,
+  },
+  {
+    name: "Gallifrey",
+    code: `\
 function circle(r, a, b, s = 1) {
   return abs((x - a) ** 2 + (y - b) ** 2 - r ** 2) < r * s;
 }
@@ -49,10 +44,37 @@ const b = w - 4;
 return !inCircle(0.19 * b, 0.56 * b, 0.56 * b, 3) && (circle(0.6 * b, 0, 0, 2) || circle(0.78 * b, 0, 0, 2) || circle(b, 0, 0, 6) || circle(0.19 * b, 0.56 * b, 0.56 * b, 8));
 return abs(x ** 2 + y ** 2 - r ** 2) < r;
 `,
-      size: 257,
-      zeroAtCenter: true,
-    },
-  ];
+    size: 257,
+    zeroAtCenter: true,
+  },
+  {
+    name: "Trippy sci-fi",
+    code: `\
+return t % (x) > 1 && (t * y) % (x) > 70;
+`,
+    size: 512,
+    zeroAtCenter: true,
+    animate: true,
+  },
+];
+
+let sketches;
+try {
+  sketches = JSON.parse(localStorage.getItem("sketches"));
+} catch (e) {
+  console.error(e);
+}
+if (!sketches || sketches.length === 0) {
+  sketches = [];
+}
+
+for (let i = 0; i < BUILTIN_SKETCHES.length; i++) {
+  const sketch = BUILTIN_SKETCHES[i];
+  const li = document.createElement("li");
+  li.innerText = sketch.name + " (BUILTIN)";
+  li.onclick = () => loadSketch(i, true);
+  builtinSketchesEl.appendChild(li);
+  builtinLis.push(li);
 }
 
 for (let i = 0; i < sketches.length; i++) {
@@ -61,14 +83,18 @@ for (let i = 0; i < sketches.length; i++) {
   li.innerText = sketch.name;
   li.onclick = () => loadSketch(i);
   sketchesEl.appendChild(li);
-  lis.push(li);
+  userLis.push(li);
 }
 
 let currentSketchIndex = null;
+let currentSketchBuiltin = null;
 let currentSketch = null;
 let fn = () => false;
 
 function save() {
+  if (currentSketchBuiltin) {
+    return;
+  }
   if (currentSketch) {
     currentSketch.code = codeEl.value;
   }
@@ -118,7 +144,12 @@ function draw() {
       imageData.data[pos + 3] = 255;
       try {
         const val = fn(x, y, t);
-        const p = val ? 0 : 255;
+        const p =
+          val === true
+            ? 0
+            : val === false
+            ? 255
+            : Math.min(255, Math.max(0, Math.floor(val)));
         imageData.data[pos + 0] = p;
         imageData.data[pos + 1] = p;
         imageData.data[pos + 2] = p;
@@ -147,7 +178,12 @@ function draw() {
           const pos = Y * size4 + X * 4;
           //imageData.data[pos + 3] = 255;
           const val = fn(x, y, t);
-          const p = val ? 0 : 255;
+          const p =
+            val === true
+              ? 0
+              : val === false
+              ? 255
+              : Math.min(255, Math.max(0, Math.floor(val)));
           imageData.data[pos + 0] = p;
           imageData.data[pos + 1] = p;
           imageData.data[pos + 2] = p;
@@ -160,21 +196,24 @@ function draw() {
 }
 
 let imageData;
-function loadSketch(sketchId) {
+function loadSketch(sketchId, builtin) {
   save();
   if (currentSketchIndex >= 0) {
+    const lis = currentSketchBuiltin ? builtinLis : userLis;
     const currentLi = lis[currentSketchIndex];
     if (currentLi) {
       currentLi.className = "";
     }
   }
-  currentSketch = sketches[sketchId];
+  currentSketch = (builtin ? BUILTIN_SKETCHES : sketches)[sketchId];
   if (currentSketch) {
+    const lis = builtin ? builtinLis : userLis;
     currentSketchIndex = sketchId;
+    currentSketchBuiltin = builtin;
     lis[currentSketchIndex].className = "active";
-    nameEl.disabled = false;
+    nameEl.disabled = builtin;
     codeEl.value = currentSketch.code;
-    codeEl.disabled = false;
+    codeEl.disabled = builtin;
     sliderEl.disabled = false;
     sliderEl.value = currentSketch.size;
     zeroAtCenterEl.checked = currentSketch.zeroAtCenter;
@@ -183,6 +222,7 @@ function loadSketch(sketchId) {
     parseCode();
   } else {
     currentSketchIndex = null;
+    currentSketchBuiltin = false;
     nameEl.value = "-";
     nameEl.disabled = true;
     codeEl.value = "";
@@ -203,7 +243,11 @@ const debouncedSave = () => {
   }, 1000);
 };
 
-function codeChange() {
+function codeChange(e) {
+  if (currentSketchBuiltin) {
+    e.preventDefault();
+    return false;
+  }
   parseCode();
   draw();
   debouncedSave();
@@ -225,7 +269,10 @@ document.getElementById("new").addEventListener("click", () => {
 
 function refresh() {
   cancelAnimationFrame(nextFrame);
-  lis[currentSketchIndex].innerText = currentSketch.name;
+  const lis = currentSketchBuiltin ? builtinLis : userLis;
+  if (!currentSketchBuiltin) {
+    lis[currentSketchIndex].innerText = currentSketch.name;
+  }
   sliderValueEl.innerText = currentSketch.size;
   canvasEl.width = currentSketch.size;
   canvasEl.height = currentSketch.size;
@@ -236,7 +283,11 @@ function refresh() {
   draw();
 }
 
-function nameChange() {
+function nameChange(e) {
+  if (currentSketchBuiltin) {
+    e.preventDefault();
+    return;
+  }
   const newName = nameEl.value;
   if (newName && currentSketch) {
     currentSketch.name = newName;
