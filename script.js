@@ -56,6 +56,14 @@ return t % (x) > 1 && (t * y) % (x) > 70;
     zeroAtCenter: true,
     animate: true,
   },
+  {
+    name: "Dancing Sierpinski",
+    code: `\
+return ((x + (1 + sin(t/10)) * y / 2 & y) - y) != 0;
+`,
+    size: 512,
+    animate: true,
+  },
 ];
 
 let sketches;
