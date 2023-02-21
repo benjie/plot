@@ -9,6 +9,7 @@ const errorTextEl = document.getElementById("errorText");
 const sliderEl = document.getElementById("slider");
 const sliderValueEl = document.getElementById("sliderValue");
 const zeroAtCenterEl = document.getElementById("zeroAtCenter");
+const animateEl = document.getElementById("animate");
 const lis = [];
 
 let sketches;
@@ -86,7 +87,7 @@ function parseCode() {
 ${Object.getOwnPropertyNames(Math)
   .map((k) => `const ${k} = Math.${k};`)
   .join("\n")}
-return (x, y) => {
+return (x, y, t) => {
 ${code}
 }
 `
@@ -97,6 +98,8 @@ ${code}
   }
 }
 
+let t = 0;
+let nextFrame = null;
 function draw() {
   if (!currentSketch) {
     return;
@@ -115,7 +118,7 @@ function draw() {
       const pos = Y * (size * 4) + X * 4;
       imageData.data[pos + 3] = 255;
       try {
-        const val = fn(x, y);
+        const val = fn(x, y, t);
         imageData.data[pos + 0] = val ? 0 : 255;
         imageData.data[pos + 1] = val ? 0 : 255;
         imageData.data[pos + 2] = val ? 0 : 255;
@@ -130,10 +133,17 @@ function draw() {
     }
   }
   ctx.putImageData(imageData, 0, 0);
+  if (currentSketch.animate) {
+    nextFrame = requestAnimationFrame(() => {
+      t++;
+      draw();
+    });
+  }
 }
 
 function loadSketch(sketchId) {
   save();
+  cancelAnimationFrame(nextFrame);
   if (currentSketchIndex >= 0) {
     const currentLi = lis[currentSketchIndex];
     if (currentLi) {
@@ -148,8 +158,9 @@ function loadSketch(sketchId) {
     codeEl.value = currentSketch.code;
     codeEl.disabled = false;
     sliderEl.disabled = false;
-    sliderEl.value = currentSketch.value;
+    sliderEl.value = currentSketch.size;
     zeroAtCenterEl.checked = currentSketch.zeroAtCenter;
+    animateEl.checked = currentSketch.animate;
     refresh();
     parseCode();
   } else {
@@ -160,6 +171,7 @@ function loadSketch(sketchId) {
     codeEl.disabled = true;
     fn = () => false;
   }
+  t = 0;
   draw();
 }
 
@@ -238,3 +250,16 @@ function zeroChange() {
 }
 zeroAtCenterEl.addEventListener("change", zeroChange);
 zeroAtCenterEl.addEventListener("click", zeroChange);
+
+function animateChange() {
+  const value = animateEl.checked;
+  cancelAnimationFrame(nextFrame);
+  t = 0;
+  if (currentSketch) {
+    currentSketch.animate = value;
+    refresh();
+    debouncedSave();
+  }
+}
+animateEl.addEventListener("change", animateChange);
+animateEl.addEventListener("click", animateChange);
