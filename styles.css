@@ -37,6 +37,7 @@ footer {
 .main {
   flex: 1 0 0;
   display: flex;
+  overflow: hidden;
 }
 .controlPanel {
   background-color: #ddd;
@@ -45,6 +46,7 @@ footer {
 .sketchesContainer {
   flex: 0 1 15rem;
   background-color: #ccc;
+  overflow: auto;
 }
 .sketchesContainer button {
   margin: 1rem;
