@@ -77,6 +77,20 @@ return C*P
     size: 1024,
     animate: true,
   },
+  {
+    name: "Zack's door opening",
+    code: `\
+const T=t%500
+const X=x%128
+const Y=y%128
+const P=(floor(x/128)+floor(y/128))%2
+const C= T%x%y
+return C
+`,
+    size: 505,
+    zeroAtCenter: true,
+    animate: true,
+  },
 ];
 
 let sketches;
