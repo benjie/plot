@@ -64,6 +64,19 @@ return ((x + (1 + sin(t/10)) * y / 2 & y) - y) != 0;
     size: 512,
     animate: true,
   },
+  {
+    name: "Zack's checkerboard",
+    code: `\
+const T=t%200
+const X=x%128
+const Y=y%128
+const P=(floor(x/128)+floor(y/128))%2
+const C= X*T*T/Y-7*65
+return C*P
+`,
+    size: 1024,
+    animate: true,
+  },
 ];
 
 let sketches;
