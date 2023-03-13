@@ -4,6 +4,7 @@ const sketchesEl = document.getElementById("sketches");
 const builtinSketchesEl = document.getElementById("builtinSketches");
 const customSketchesEl = document.getElementById("customSketches");
 const canvasEl = document.getElementById("canvas");
+const hamburgerEl = document.getElementById("hamburger");
 const codeEl = document.getElementById("code");
 const nameEl = document.getElementById("name");
 const errorTextEl = document.getElementById("errorText");
@@ -13,6 +14,9 @@ const zeroAtCenterEl = document.getElementById("zeroAtCenter");
 const animateEl = document.getElementById("animate");
 const builtinLis = [];
 const userLis = [];
+
+let menuOpen = true;
+let fullscreen = false;
 
 const BUILTIN_SKETCHES = [
   {
@@ -267,6 +271,8 @@ function loadSketch(sketchId, builtin) {
     fn = () => false;
   }
   draw();
+  menuOpen = false;
+  setBodyClass();
 }
 
 {
@@ -277,6 +283,8 @@ function loadSketch(sketchId, builtin) {
   } else {
     loadSketch(0, true);
   }
+  menuOpen = true;
+  setBodyClass();
 }
 
 let saveTimer;
@@ -380,12 +388,27 @@ function animateChange() {
 animateEl.addEventListener("change", animateChange);
 animateEl.addEventListener("click", animateChange);
 
-let fullscreen = false;
 function toggleFullscreen(e) {
   e.preventDefault();
   fullscreen = !fullscreen;
-  document.body.className = fullscreen ? "fullscreen" : "";
+  setBodyClass();
 }
 
 canvasEl.addEventListener("click", toggleFullscreen);
 canvasEl.addEventListener("touchstart", toggleFullscreen);
+
+function toggleMenu(e) {
+  e.preventDefault();
+  menuOpen = !menuOpen;
+  setBodyClass();
+}
+
+function setBodyClass() {
+  document.body.className =
+    (fullscreen ? "fullscreen" : "") + " " + (menuOpen ? "showmenu" : "");
+}
+
+setBodyClass();
+
+hamburgerEl.addEventListener("click", toggleMenu);
+hamburgerEl.addEventListener("touchstart", toggleMenu);

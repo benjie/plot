@@ -120,3 +120,44 @@ body.fullscreen .canvasContainer canvas {
   max-height: 100%;
   object-fit: contain;
 }
+
+#hamburger {
+  float: right;
+  display: none;
+}
+
+@media only screen and (max-width: 500px) {
+  body {
+    font-size: 10px;
+  }
+  header {
+    font-size: 1rem;
+  }
+  header,
+  footer,
+  .controlPanel {
+    padding: 0.5rem;
+  }
+  footer {
+    display: none;
+  }
+  #hamburger {
+    display: block;
+  }
+  .sketchesContainer {
+    position: absolute;
+    top: 2.25rem;
+    right: 0;
+    width: 300px;
+    height: calc(100vh - 2rem);
+    display: none;
+    box-shadow: -1px -1px 4px black;
+  }
+  .showmenu .sketchesContainer {
+    display: block;
+  }
+  .controlPanel {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
