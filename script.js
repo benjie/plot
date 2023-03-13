@@ -379,3 +379,11 @@ function animateChange() {
 }
 animateEl.addEventListener("change", animateChange);
 animateEl.addEventListener("click", animateChange);
+
+let fullscreen = false;
+function toggleFullscreen() {
+  fullscreen = !fullscreen;
+  document.body.className = fullscreen ? "fullscreen" : "";
+}
+
+canvasEl.addEventListener("click", toggleFullscreen);
