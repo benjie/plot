@@ -381,9 +381,11 @@ animateEl.addEventListener("change", animateChange);
 animateEl.addEventListener("click", animateChange);
 
 let fullscreen = false;
-function toggleFullscreen() {
+function toggleFullscreen(e) {
+  e.preventDefault();
   fullscreen = !fullscreen;
   document.body.className = fullscreen ? "fullscreen" : "";
 }
 
 canvasEl.addEventListener("click", toggleFullscreen);
+canvasEl.addEventListener("touchstart", toggleFullscreen);
